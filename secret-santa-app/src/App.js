@@ -86,24 +86,9 @@ export default function App() {
     }
   };
 
-  const copyAssignment = (assignment) => {
-    const message = `Secret Santa Assignment\n\nHi ${assignment.giver.name},\n\nYou are the Secret Santa for: ${assignment.receiver.name}\n\nPlease keep this confidential.`;
-    navigator.clipboard.writeText(message);
-    alert('Assignment copied to clipboard');
-  };
-
-  const exportAllAssignments = () => {
-    const allMessages = assignments.map(a => 
-      `To: ${a.giver.email}\nMessage: Hi ${a.giver.name}, You are the Secret Santa for: ${a.receiver.name}`
-    ).join('\n\n---\n\n');
-    
-    navigator.clipboard.writeText(allMessages);
-    alert('All assignments copied to clipboard');
-  };
-
   const sendViaEmail = async () => {
     if (!assignments || assignments.length === 0) {
-      alert('No assignments to send!');
+      alert('No assignments to send');
       return;
     }
 
@@ -111,7 +96,8 @@ export default function App() {
     setSendResults(null);
 
     try {
-      const response = await fetch('http://localhost:3001/api/send-assignments', {
+      const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+      const response = await fetch(`${apiUrl}/api/send-assignments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -129,7 +115,7 @@ export default function App() {
       }
     } catch (error) {
       console.error('Error sending messages:', error);
-      alert('Failed to connect to server. Make sure the backend is running on port 3001.');
+      alert('Failed to connect to server. Please try again later.');
     } finally {
       setSending(false);
     }
@@ -229,27 +215,34 @@ export default function App() {
                 <Mail className="w-5 h-5" />
                 Assignments Generated
               </h2>
-              <div className="flex gap-2">
-                <button
-                  onClick={sendViaEmail}
-                  disabled={sending}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
-                >
-                  {sending ? 'Sending...' : 'Send via Email'}
-                </button>
-                <button
-                  onClick={exportAllAssignments}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                >
-                  Copy All
-                </button>
-              </div>
+              <button
+                onClick={sendViaEmail}
+                disabled={sending}
+                className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {sending ? 'Sending...' : 'Send via Email'}
+              </button>
             </div>
             
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-6 mb-4">
+              <div className="text-center">
+                <div className="text-4xl mb-3">✓</div>
+                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                  Assignments Generated Successfully
+                </h3>
+                <p className="text-sm text-gray-600 mb-4">
+                  {assignments.length} Secret Santa assignments have been created.
+                </p>
+                <p className="text-sm text-gray-500">
+                  Assignments are hidden to keep the secret. Use the buttons above to send them out.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
               <p className="text-sm text-blue-800">
-                <strong>Email Delivery:</strong> Click "Send via Email" to automatically email all participants their Secret Santa assignments. 
-                Or click "Copy" below to manually send individual messages.
+                <strong>Email Delivery:</strong> Click "Send via Email" above to automatically email all participants their Secret Santa assignments. 
+                The assignments are kept secret - only the recipients will see who they're buying for.
               </p>
             </div>
 
@@ -268,32 +261,6 @@ export default function App() {
                 )}
               </div>
             )}
-
-            <div className="space-y-3">
-              {assignments.map((assignment, index) => (
-                <div
-                  key={index}
-                  className="p-4 bg-gradient-to-r from-red-50 to-green-50 rounded-lg border border-gray-200"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p className="text-gray-700">
-                        <span className="font-semibold">{assignment.giver.name}</span>
-                        <span className="mx-2">→</span>
-                        <span className="font-semibold text-green-700">{assignment.receiver.name}</span>
-                      </p>
-                      <p className="text-sm text-gray-500 mt-1">Send to: {assignment.giver.email}</p>
-                    </div>
-                    <button
-                      onClick={() => copyAssignment(assignment)}
-                      className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
-                    >
-                      Copy
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
 
             <button
               onClick={() => {

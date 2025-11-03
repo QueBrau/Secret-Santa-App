@@ -2,15 +2,23 @@
 
 A modern web application to organize Secret Santa gift exchanges with **100% FREE automatic SMS** notifications!
 
-## ✨ Features
+## Features
 
-- 📝 Add participants with names and email addresses
-- 🎲 Generate random Secret Santa assignments (ensures no one gets themselves)
-- � **Send assignments via email** - beautiful HTML emails automatically sent to all participants
-- 📋 Copy assignments to clipboard for manual sending
-- 🎨 Beautiful, responsive UI with Tailwind-inspired styling
-- ✅ Participant management (add/remove)
-- 🆓 100% free - just needs a Gmail account
+- Add participants with names and email addresses
+- Generate random Secret Santa assignments (ensures no one gets themselves)
+- Send assignments via email - beautiful HTML emails automatically sent to all participants
+- Copy assignments to clipboard for manual sending
+- Beautiful, responsive UI
+- Participant management (add/remove)
+- 100% free - just needs a Gmail account
+
+## Live Demo
+
+Want to use this app without installing anything? Deploy it online in minutes!
+
+**See**: [DEPLOY_QUICK.md](./DEPLOY_QUICK.md) for step-by-step deployment guide.
+
+Your app will be live at: `https://yourusername.github.io/Secret-Santa-App`
 - 💰 **Zero cost** - no credit card or paid API required!
 
 ## 🚀 Quick Start
