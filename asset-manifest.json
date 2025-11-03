@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Secret-Santa-App/static/css/main.44c62eab.css",
+    "main.js": "/Secret-Santa-App/static/js/main.a1c6ef10.js",
+    "index.html": "/Secret-Santa-App/index.html",
+    "main.44c62eab.css.map": "/Secret-Santa-App/static/css/main.44c62eab.css.map",
+    "main.a1c6ef10.js.map": "/Secret-Santa-App/static/js/main.a1c6ef10.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.44c62eab.css",
+    "static/js/main.a1c6ef10.js"
+  ]
+}
