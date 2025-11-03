@@ -1,43 +1,33 @@
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
-
-export default App;
 import React, { useState } from 'react';
 import { Gift, UserPlus, Trash2, Users, Shuffle, Mail } from 'lucide-react';
+import './App.css';
 
-export default function SecretSantaApp() {
+export default function App() {
   const [participants, setParticipants] = useState([]);
   const [name, setName] = useState('');
-  const [phone, setPhone] = useState('');
+  const [email, setEmail] = useState('');
   const [assignments, setAssignments] = useState([]);
   const [showAssignments, setShowAssignments] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendResults, setSendResults] = useState(null);
 
   const addParticipant = () => {
-    if (name.trim() && phone.trim()) {
-      setParticipants([...participants, { id: Date.now(), name: name.trim(), phone: phone.trim() }]);
+    if (name.trim() && email.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email.trim())) {
+        alert('Please enter a valid email address');
+        return;
+      }
+      
+      setParticipants([...participants, { 
+        id: Date.now(), 
+        name: name.trim(), 
+        email: email.trim()
+      }]);
       setName('');
-      setPhone('');
+      setEmail('');
+    } else {
+      alert('Please fill in both name and email');
     }
   };
 
@@ -97,18 +87,52 @@ export default function SecretSantaApp() {
   };
 
   const copyAssignment = (assignment) => {
-    const message = `🎅 Secret Santa Assignment 🎁\n\nHi ${assignment.giver.name}!\n\nYou are the Secret Santa for: ${assignment.receiver.name}\n\nKeep it secret! 🤫`;
+    const message = `Secret Santa Assignment\n\nHi ${assignment.giver.name},\n\nYou are the Secret Santa for: ${assignment.receiver.name}\n\nPlease keep this confidential.`;
     navigator.clipboard.writeText(message);
-    alert('Assignment copied to clipboard! You can now text it manually.');
+    alert('Assignment copied to clipboard');
   };
 
   const exportAllAssignments = () => {
     const allMessages = assignments.map(a => 
-      `To: ${a.giver.phone}\nMessage: Hi ${a.giver.name}! You are the Secret Santa for: ${a.receiver.name}`
+      `To: ${a.giver.email}\nMessage: Hi ${a.giver.name}, You are the Secret Santa for: ${a.receiver.name}`
     ).join('\n\n---\n\n');
     
     navigator.clipboard.writeText(allMessages);
-    alert('All assignments copied to clipboard!');
+    alert('All assignments copied to clipboard');
+  };
+
+  const sendViaEmail = async () => {
+    if (!assignments || assignments.length === 0) {
+      alert('No assignments to send!');
+      return;
+    }
+
+    setSending(true);
+    setSendResults(null);
+
+    try {
+      const response = await fetch('http://localhost:3001/api/send-assignments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assignments }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSendResults(data);
+        alert(`Successfully sent ${data.sent} messages${data.failed > 0 ? `\n${data.failed} failed` : ''}`);
+      } else {
+        alert(`Error: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error sending messages:', error);
+      alert('Failed to connect to server. Make sure the backend is running on port 3001.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -139,10 +163,10 @@ export default function SecretSantaApp() {
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
             <input
-              type="tel"
-              placeholder="Phone (e.g., 555-0123)"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              type="email"
+              placeholder="Email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && addParticipant()}
               className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             />
@@ -172,7 +196,7 @@ export default function SecretSantaApp() {
                 >
                   <div>
                     <p className="font-medium text-gray-800">{participant.name}</p>
-                    <p className="text-sm text-gray-500">{participant.phone}</p>
+                    <p className="text-sm text-gray-500">{participant.email}</p>
                   </div>
                   <button
                     onClick={() => removeParticipant(participant.id)}
@@ -205,21 +229,45 @@ export default function SecretSantaApp() {
                 <Mail className="w-5 h-5" />
                 Assignments Generated
               </h2>
-              <button
-                onClick={exportAllAssignments}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-              >
-                Copy All
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={sendViaEmail}
+                  disabled={sending}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
+                >
+                  {sending ? 'Sending...' : 'Send via Email'}
+                </button>
+                <button
+                  onClick={exportAllAssignments}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                >
+                  Copy All
+                </button>
+              </div>
             </div>
             
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-              <p className="text-sm text-yellow-800">
-                <strong>Note:</strong> Click "Copy" to copy each assignment message to your clipboard, 
-                then manually send it via text. For automated texting, you'll need to integrate with a 
-                service like Twilio.
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-blue-800">
+                <strong>Email Delivery:</strong> Click "Send via Email" to automatically email all participants their Secret Santa assignments. 
+                Or click "Copy" below to manually send individual messages.
               </p>
             </div>
+
+            {sendResults && (
+              <div className={`border rounded-lg p-4 mb-4 ${sendResults.failed === 0 ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                <p className="text-sm font-semibold mb-2">
+                  Sent: {sendResults.sent} | Failed: {sendResults.failed}
+                </p>
+                {sendResults.errors && sendResults.errors.length > 0 && (
+                  <div className="text-xs text-red-700 mt-2">
+                    <p className="font-semibold">Errors:</p>
+                    {sendResults.errors.map((err, idx) => (
+                      <p key={idx}>{err.giver}: {err.error}</p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="space-y-3">
               {assignments.map((assignment, index) => (
@@ -234,7 +282,7 @@ export default function SecretSantaApp() {
                         <span className="mx-2">→</span>
                         <span className="font-semibold text-green-700">{assignment.receiver.name}</span>
                       </p>
-                      <p className="text-sm text-gray-500 mt-1">Send to: {assignment.giver.phone}</p>
+                      <p className="text-sm text-gray-500 mt-1">Send to: {assignment.giver.email}</p>
                     </div>
                     <button
                       onClick={() => copyAssignment(assignment)}

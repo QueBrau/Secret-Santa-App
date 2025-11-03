@@ -1,23 +1,118 @@
-# Getting Started with Create React App
+# 🎅 Secret Santa App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern web application to organize Secret Santa gift exchanges with **100% FREE automatic SMS** notifications!
 
-## Available Scripts
+## ✨ Features
+
+- 📝 Add participants with names and email addresses
+- 🎲 Generate random Secret Santa assignments (ensures no one gets themselves)
+- � **Send assignments via email** - beautiful HTML emails automatically sent to all participants
+- 📋 Copy assignments to clipboard for manual sending
+- 🎨 Beautiful, responsive UI with Tailwind-inspired styling
+- ✅ Participant management (add/remove)
+- 🆓 100% free - just needs a Gmail account
+- 💰 **Zero cost** - no credit card or paid API required!
+
+## 🚀 Quick Start
+
+### Frontend Only (Manual SMS)
 
 In the project directory, you can run:
 
-### `npm start`
+```bash
+npm install
+npm start
+```
 
 Runs the app in the development mode.\
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Full Setup with Email Delivery
+
+**� Want automatic email sending?** See [EMAIL_SETUP.md](./EMAIL_SETUP.md) for complete instructions!
+
+**Quick version:**
+
+1. **Set up backend:**
+   ```bash
+   cd server
+   cp .env.example .env
+   # Edit .env with your Gmail credentials (see FREE_SMS_SETUP.md)
+   npm install
+   npm start
+   ```
+
+2. **Run frontend (separate terminal):**
+   ```bash
+   npm start
+   ```
+
+3. The backend runs on `http://localhost:3001` and frontend on `http://localhost:3000`
+
+**🚀 Quick Start Script:**
+```bash
+./start-all.sh
+```
+This convenience script starts both servers at once!
+
+## � Email Integration
+
+This app sends beautiful HTML emails to participants with their Secret Santa assignments!
+
+**How it works:**
+- Uses your Gmail (or any email service) to send emails
+- Beautiful, festive HTML email template
+- Instant delivery
+- **Cost: $0.00** - Completely free!
+
+**Setup Requirements:**
+- Gmail account with App Password (free, takes 2 minutes)
+- Participants' email addresses
+- That's it!
+
+**📖 Full setup guide:** [EMAIL_SETUP.md](./EMAIL_SETUP.md)
+
+**How it works:**
+```
+User clicks "Send via SMS"
+        ↓
+React App (localhost:3000)
+        ↓
+Backend API (localhost:3001)
+        ↓
+Twilio API
+        ↓
+📱 SMS to all participants
+```
+
+**Setup Requirements:**
+- Twilio account (free trial available with $15 credit)
+- Twilio phone number (~$1/month)
+- Account SID and Auth Token (free)
+
+See [TWILIO_SETUP.md](./TWILIO_SETUP.md) for detailed setup instructions.
+
+## 📂 Project Structure
+
+```
+secret-santa-app/
+├── src/                  # React frontend
+│   ├── App.js           # Main Secret Santa component
+│   ├── App.css          # Styling
+│   └── ...
+├── server/              # Backend API for Twilio
+│   ├── index.js         # Express server with Twilio integration
+│   ├── package.json     # Backend dependencies
+│   └── .env.example     # Environment variables template
+├── public/              # Static assets
+└── package.json         # Frontend dependencies
+```
+
+## 🛠️ Available Scripts
 
 ### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Launches the test runner in the interactive watch mode.
 
 ### `npm run build`
 
