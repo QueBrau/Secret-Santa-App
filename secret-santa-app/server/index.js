@@ -18,9 +18,15 @@ const emailService = process.env.EMAIL_SERVICE || 'gmail';
 if (emailUser && emailPass) {
   transporter = nodemailer.createTransport({
     service: emailService,
+    host: emailService === 'gmail' ? 'smtp.gmail.com' : undefined,
+    port: 587,
+    secure: false,
     auth: {
       user: emailUser,
       pass: emailPass
+    },
+    tls: {
+      rejectUnauthorized: false
     }
   });
   console.log(`Email service configured: ${emailService} (${emailUser})`);
